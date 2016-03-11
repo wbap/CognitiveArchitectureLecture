@@ -12,3 +12,7 @@
  - using BriCA: [BriCA-Gazebo](/examples/brica_agent)
  - using Nengo: [Nengo-Gazebo](/examples/nengo_agent)
  - using Brain Simulator: [Brain Simulator and BriCA](examples/brainsimulator_agent)
+
+## Support:
+If you have any question, please send us message on Google Group:  
+https://groups.google.com/d/forum/wbai-dev

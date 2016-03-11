@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Name="brica4" xmlns:yaxlib="http://www.sinairv.com/yaxlib/">
+  <Network Sequential="False" LoadOnStart="False" SaveOnStop="False" Id="0" Name="Network">
+    <Children>
+      <MyPythonNode LoadOnStart="False" SaveOnStop="False" Id="8" Name="Sensor" yaxlib:realtype="GoodAI.Modules.Scripting.MyPythonNode">
+        <Structure>
+          <ExternalScript></ExternalScript>
+        </Structure>
+        <IO>
+          <InputBranches>1</InputBranches>
+          <OutputBranchesSpec>2,2,4</OutputBranchesSpec>
+        </IO>
+        <DataFolder></DataFolder>
+        <Location X="409" Y="192" />
+        <m_script>"""
+In this example all input data are summed up,
+cosine is applied and the result is copied
+to each element of each output block.
+"""
+# Import math library.
+import math
+import socket
+import pickle
+
+# init() is called in the beginning of each simulation, "node" argument
+# has public members name, input, output, blackboard.
+def init(node):
+    print node.name + ": Init called"
+
+# execute() is called in each simulation step.
+def execute(node):
+    print node.name + ": Execute called"
+    # node.blackboard is a dictionary shared between nodes.
+        
+    TCP_IP = "192.168.44.42"
+    TCP_PORT = 8082
+    BUFFER_SIZE = 1024
+    st = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    st.connect((TCP_IP, TCP_PORT))
+    st.send("Command hogehoge")
+    res = st.recv(BUFFER_SIZE)
+    st.close()
+   
+    dat = pickle.loads(res)
+    
+            
+    node.output[0][0] = dat["out_body_velocity"][0]
+    node.output[0][1] = dat["out_body_velocity"][1]
+    node.output[1][0] = dat["out_body_position"][0]
+    node.output[1][1] = dat["out_body_position"][1]
+    node.output[2][0] = dat["out_body_orientation"][0]
+    node.output[2][1] = dat["out_body_orientation"][1]
+    node.output[2][2] = dat["out_body_orientation"][2]
+    node.output[2][3] = dat["out_body_orientation"][3]</m_script>
+        <Tasks>
+          <Task Enabled="True" PropertyName="initTask" yaxlib:realtype="GoodAI.Modules.Scripting.InitTask">
+            <Behavior>
+              <Settings></Settings>
+            </Behavior>
+          </Task>
+          <Task Enabled="True" PropertyName="executeTask" yaxlib:realtype="GoodAI.Modules.Scripting.ExecuteTask" />
+        </Tasks>
+      </MyPythonNode>
+      <MyPythonNode LoadOnStart="False" SaveOnStop="False" Id="9" Name="Motor" yaxlib:realtype="GoodAI.Modules.Scripting.MyPythonNode">
+        <Structure>
+          <ExternalScript></ExternalScript>
+        </Structure>
+        <IO>
+          <InputBranches>5</InputBranches>
+          <OutputBranchesSpec>2</OutputBranchesSpec>
+        </IO>
+        <DataFolder></DataFolder>
+        <Location X="963" Y="166" />
+        <m_script>"""
+In this example all input data are summed up,
+cosine is applied and the result is copied
+to each element of each output block.
+"""
+# Import math library.
+import math
+import socket
+import pickle
+
+# init() is called in the beginning of each simulation, "node" argument
+# has public members name, input, output, blackboard.
+def init(node):
+    print node.name + ": Init called"
+
+# execute() is called in each simulation step.
+def execute(node):
+    print node.name + ": Execute called"
+    # node.blackboard is a dictionary shared between nodes.
+    
+    node.output[0][0] = node.input[0][0]
+    node.output[0][1] = node.input[0][1]
+    
+    TCP_IP = "192.168.44.42"
+    TCP_PORT = 8083
+    BUFFER_SIZE = 1024
+    st = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    st.connect((TCP_IP, TCP_PORT))
+    st.send(pickle.dumps((float(node.output[0][0]),float(node.output[0][1]))))
+    res = st.recv(BUFFER_SIZE)
+    st.close()
+    </m_script>
+        <Tasks>
+          <Task Enabled="True" PropertyName="initTask" yaxlib:realtype="GoodAI.Modules.Scripting.InitTask">
+            <Behavior>
+              <Settings></Settings>
+            </Behavior>
+          </Task>
+          <Task Enabled="True" PropertyName="executeTask" yaxlib:realtype="GoodAI.Modules.Scripting.ExecuteTask" />
+        </Tasks>
+      </MyPythonNode>
+      <MyUserInput LoadOnStart="False" SaveOnStop="False" Id="10" Name="Motor_Input" yaxlib:realtype="GoodAI.Core.Nodes.MyUserInput">
+        <IO>
+          <OutputSize>2</OutputSize>
+        </IO>
+        <ColumnHint>1</ColumnHint>
+        <MinValue>-0.1</MinValue>
+        <MaxValue>0.1</MaxValue>
+        <UserInputStr>-0.01095329;0.03731496</UserInputStr>
+        <ConvertToBinary>False</ConvertToBinary>
+        <DataFolder></DataFolder>
+        <Location X="724" Y="72" />
+        <Tasks>
+          <Task Enabled="True" PropertyName="GenerateInput" yaxlib:realtype="GoodAI.Core.Nodes.MyUserInput+MyTransferTask" />
+        </Tasks>
+      </MyUserInput>
+      <MyUserInput LoadOnStart="False" SaveOnStop="False" Id="11" Name="Dummy_Node" yaxlib:realtype="GoodAI.Core.Nodes.MyUserInput">
+        <IO>
+          <OutputSize>1</OutputSize>
+        </IO>
+        <ColumnHint>1</ColumnHint>
+        <MinValue>0</MinValue>
+        <MaxValue>1</MaxValue>
+        <UserInputStr>0</UserInputStr>
+        <ConvertToBinary>False</ConvertToBinary>
+        <DataFolder></DataFolder>
+        <Location X="209" Y="243" />
+        <Tasks>
+          <Task Enabled="True" PropertyName="GenerateInput" yaxlib:realtype="GoodAI.Core.Nodes.MyUserInput+MyTransferTask" />
+        </Tasks>
+      </MyUserInput>
+      <MyPythonNode LoadOnStart="False" SaveOnStop="False" Id="12" Name="Controller" yaxlib:realtype="GoodAI.Modules.Scripting.MyPythonNode">
+        <Structure>
+          <ExternalScript></ExternalScript>
+        </Structure>
+        <IO>
+          <InputBranches>3</InputBranches>
+          <OutputBranchesSpec>2</OutputBranchesSpec>
+        </IO>
+        <DataFolder></DataFolder>
+        <Location X="631" Y="72" />
+        <m_script>"""
+In this example all input data are summed up,
+cosine is applied and the result is copied
+to each element of each output block.
+"""
+# Import math library.
+import math
+
+# init() is called in the beginning of each simulation, "node" argument
+# has public members name, input, output, blackboard.
+def init(node):
+    print node.name + ": Init called"
+
+# execute() is called in each simulation step.
+def execute(node):
+    print node.name + ": Execute called"
+    # node.blackboard is a dictionary shared between nodes.
+    
+    s = 0.0
+    # Iterate over all input blocks. (Input-block number can be
+    # set in Node Properties, their sizes depend on connected nodes.)
+    for i in node.input:
+        # Sum all elements of the block i.
+        s += sum(i)
+        
+    # Call method from math library.
+    result = math.cos(s)
+
+    # Iterate over all output blocks. (Output-block number and sizes
+    # can be set in Node Properties in OutputBranchesSpec.)
+    for i in node.output:
+        # Iterate over each element of the block and set result.
+        for j in xrange(len(i)):
+            i[j] = result
+</m_script>
+        <Tasks>
+          <Task Enabled="True" PropertyName="initTask" yaxlib:realtype="GoodAI.Modules.Scripting.InitTask">
+            <Behavior>
+              <Settings></Settings>
+            </Behavior>
+          </Task>
+          <Task Enabled="True" PropertyName="executeTask" yaxlib:realtype="GoodAI.Modules.Scripting.ExecuteTask" />
+        </Tasks>
+      </MyPythonNode>
+    </Children>
+    <LayoutProperties Zoom="0.9223158">
+      <Translation X="-209" Y="-52" />
+    </LayoutProperties>
+    <GroupInputNodes>
+      <MyParentInput ParentInputIndex="0" Id="1" Name="Output">
+        <Location X="50" Y="100" />
+      </MyParentInput>
+      <MyParentInput ParentInputIndex="1" Id="4" Name="RandomPool">
+        <Location X="50" Y="250" />
+      </MyParentInput>
+      <MyParentInput ParentInputIndex="2" Id="5" Name="Label">
+        <Location X="50" Y="400" />
+      </MyParentInput>
+    </GroupInputNodes>
+    <GroupOutputNodes />
+    <DataFolder></DataFolder>
+    <Location />
+    <Connections>
+      <Connection From="11" To="8" FromIndex="0" ToIndex="0" />
+      <Connection From="10" To="9" FromIndex="0" ToIndex="0" />
+      <Connection From="12" To="9" FromIndex="0" ToIndex="1" />
+      <Connection From="8" To="9" FromIndex="0" ToIndex="2" />
+      <Connection From="8" To="9" FromIndex="1" ToIndex="3" />
+      <Connection From="8" To="9" FromIndex="2" ToIndex="4" />
+      <Connection From="8" To="12" FromIndex="0" ToIndex="0" />
+      <Connection From="8" To="12" FromIndex="1" ToIndex="1" />
+      <Connection From="8" To="12" FromIndex="2" ToIndex="2" />
+    </Connections>
+    <Tasks />
+  </Network>
+  <World LoadOnStart="False" SaveOnStop="False" Id="3" Name="World" yaxlib:realtype="GoodAI.Modules.Testing.MyTestingWorld">
+    <IO>
+      <OutputSize>1</OutputSize>
+      <ColumnHint>1</ColumnHint>
+      <PatternCount>0</PatternCount>
+      <PatternGroups>1</PatternGroups>
+    </IO>
+    <DataFolder></DataFolder>
+    <Location />
+    <Tasks>
+      <Task Enabled="True" PropertyName="GenerateInput" yaxlib:realtype="GoodAI.Modules.Testing.MyTestingWorld+MyCUDAGenerateInputTask">
+        <ExpositionTime>1</ExpositionTime>
+        <RandomOrder>False</RandomOrder>
+      </Task>
+    </Tasks>
+  </World>
+  <Dashboard>
+    <Properties yaxlib:realtype="System.Collections.Generic.List`1[[GoodAI.Core.Dashboard.DashboardNodeProperty, GoodAI.Platform.Core, Version=0.4.0.0, Culture=neutral, PublicKeyToken=null]]" />
+  </Dashboard>
+  <GroupedDashboard>
+    <Properties yaxlib:realtype="System.Collections.Generic.List`1[[GoodAI.Core.Dashboard.DashboardPropertyGroup, GoodAI.Platform.Core, Version=0.4.0.0, Culture=neutral, PublicKeyToken=null]]" />
+  </GroupedDashboard>
+  <Observers>
+    <TimePlotObserver yaxlib:realtype="GoodAI.Core.Observers.TimePlotObserver">
+      <ObserverWidth>500</ObserverWidth>
+      <ObserverHeight>400</ObserverHeight>
+      <ColorBackground>White</ColorBackground>
+      <ViewMode>Fit_2D</ViewMode>
+      <KeepRatio>True</KeepRatio>
+      <Window>
+        <Location X="758" Y="477" />
+        <Size Width="300" Height="175" />
+        <CameraData />
+      </Window>
+      <AutosaveSnapshop>False</AutosaveSnapshop>
+      <BilinearFiltering>False</BilinearFiltering>
+      <TargetIdentifier>8#Output_1</TargetIdentifier>
+      <m_displayMethod>CYCLE</m_displayMethod>
+      <m_boundPolicy>AUTO</m_boundPolicy>
+      <m_boundMin>-0.0120886</m_boundMin>
+      <m_boundMax>0.01212167</m_boundMax>
+      <m_manualBoundMin>-0.0120886</m_manualBoundMin>
+      <m_manualBoundMax>0.01212167</m_manualBoundMax>
+      <m_manualBoundHaveBeenSet>False</m_manualBoundHaveBeenSet>
+      <m_period>1</m_period>
+      <m_delay>0</m_delay>
+      <m_offset>0</m_offset>
+      <m_stride>1</m_stride>
+      <m_count>1</m_count>
+      <m_colorBackground>White</m_colorBackground>
+      <m_colorFont>Black</m_colorFont>
+      <m_colorCurve1>Red</m_colorCurve1>
+      <m_colorCurve2>Blue</m_colorCurve2>
+      <m_colorCurve3>Green</m_colorCurve3>
+      <m_colorCurve4>Yellow</m_colorCurve4>
+      <m_colorCurve5>Purple</m_colorCurve5>
+      <m_colorCurve6>Cyan</m_colorCurve6>
+      <m_colorCurveExtra>Black</m_colorCurveExtra>
+    </TimePlotObserver>
+    <TimePlotObserver yaxlib:realtype="GoodAI.Core.Observers.TimePlotObserver">
+      <ObserverWidth>500</ObserverWidth>
+      <ObserverHeight>400</ObserverHeight>
+      <ColorBackground>White</ColorBackground>
+      <ViewMode>Fit_2D</ViewMode>
+      <KeepRatio>True</KeepRatio>
+      <Window>
+        <Location X="524" Y="647" />
+        <Size Width="300" Height="176" />
+        <CameraData />
+      </Window>
+      <AutosaveSnapshop>False</AutosaveSnapshop>
+      <BilinearFiltering>False</BilinearFiltering>
+      <TargetIdentifier>8#Output_2</TargetIdentifier>
+      <m_displayMethod>CYCLE</m_displayMethod>
+      <m_boundPolicy>AUTO</m_boundPolicy>
+      <m_boundMin>-1.211603</m_boundMin>
+      <m_boundMax>1.46532</m_boundMax>
+      <m_manualBoundMin>-1.211603</m_manualBoundMin>
+      <m_manualBoundMax>1.46532</m_manualBoundMax>
+      <m_manualBoundHaveBeenSet>False</m_manualBoundHaveBeenSet>
+      <m_period>1</m_period>
+      <m_delay>0</m_delay>
+      <m_offset>0</m_offset>
+      <m_stride>1</m_stride>
+      <m_count>1</m_count>
+      <m_colorBackground>White</m_colorBackground>
+      <m_colorFont>Black</m_colorFont>
+      <m_colorCurve1>Red</m_colorCurve1>
+      <m_colorCurve2>Blue</m_colorCurve2>
+      <m_colorCurve3>Green</m_colorCurve3>
+      <m_colorCurve4>Yellow</m_colorCurve4>
+      <m_colorCurve5>Purple</m_colorCurve5>
+      <m_colorCurve6>Cyan</m_colorCurve6>
+      <m_colorCurveExtra>Black</m_colorCurveExtra>
+    </TimePlotObserver>
+    <TimePlotObserver yaxlib:realtype="GoodAI.Core.Observers.TimePlotObserver">
+      <ObserverWidth>500</ObserverWidth>
+      <ObserverHeight>400</ObserverHeight>
+      <ColorBackground>White</ColorBackground>
+      <ViewMode>Fit_2D</ViewMode>
+      <KeepRatio>True</KeepRatio>
+      <Window>
+        <Location X="520" Y="829" />
+        <Size Width="300" Height="177" />
+        <CameraData />
+      </Window>
+      <AutosaveSnapshop>False</AutosaveSnapshop>
+      <BilinearFiltering>False</BilinearFiltering>
+      <TargetIdentifier>8#Output_3</TargetIdentifier>
+      <m_displayMethod>CYCLE</m_displayMethod>
+      <m_boundPolicy>AUTO</m_boundPolicy>
+      <m_boundMin>-0.02506999</m_boundMin>
+      <m_boundMax>0.01847565</m_boundMax>
+      <m_manualBoundMin>-0.02506999</m_manualBoundMin>
+      <m_manualBoundMax>0.01847565</m_manualBoundMax>
+      <m_manualBoundHaveBeenSet>False</m_manualBoundHaveBeenSet>
+      <m_period>1</m_period>
+      <m_delay>0</m_delay>
+      <m_offset>0</m_offset>
+      <m_stride>1</m_stride>
+      <m_count>1</m_count>
+      <m_colorBackground>White</m_colorBackground>
+      <m_colorFont>Black</m_colorFont>
+      <m_colorCurve1>Red</m_colorCurve1>
+      <m_colorCurve2>Blue</m_colorCurve2>
+      <m_colorCurve3>Green</m_colorCurve3>
+      <m_colorCurve4>Yellow</m_colorCurve4>
+      <m_colorCurve5>Purple</m_colorCurve5>
+      <m_colorCurve6>Cyan</m_colorCurve6>
+      <m_colorCurveExtra>Black</m_colorCurveExtra>
+    </TimePlotObserver>
+  </Observers>
+  <MemoryBlockAttributes />
+  <UsedModules>
+    <Module Name="GoodAI.PythonModule.dll" Version="1" />
+    <Module Name="GoodAI.Platform.Core.dll" Version="10" />
+  </UsedModules>
+</Project>

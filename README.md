@@ -16,5 +16,5 @@
  - using Brain Simulator: [Brain Simulator and BriCA](examples/brainsimulator_agent)
 
 ## Support:
-If you have any question, please send us message on Google Group:  
+If you have any question, please send us a message to our Google Group:  
 https://groups.google.com/d/forum/wbai-dev
